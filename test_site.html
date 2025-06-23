@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>データアップロード</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background-color: #f9f9f9; }
+    h1 { margin-bottom: 1rem; }
+    input[type="file"] { margin-bottom: 1rem; }
+    button { padding: 0.5rem 1rem; font-size: 1rem; }
+    #status, #result { margin-top: 1rem; }
+    #result { white-space: pre-wrap; background-color: #fff; padding: 1rem; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h1>ファイルをアップロード</h1>
+  <form id="uploadForm">
+    <input type="file" name="file" id="fileInput" accept=".xls,.xlsx,.csv" required />
+    <br />
+    <button type="submit">アップロード</button>
+  </form>
+  <div id="status"></div>
+  <div id="result"></div>
+  <script>
+    const form = document.getElementById("uploadForm");
+    const status = document.getElementById("status");
+    const resultDiv = document.getElementById("result");
+
+    async function fetchAnalysisResult(fileId) {
+      try {
+        const res = await fetch(`https://your-api-id.execute-api.ap-northeast-1.amazonaws.com/prod/get-analysis?file_id=${fileId}`);
+        const data = await res.json();
+
+        if (data.error) {
+          resultDiv.innerText = "分析結果が見つかりません。";
+        } else {
+          resultDiv.innerText = `分析結果:\n${JSON.stringify(data, null, 2)}`;
+        }
+      } catch (err) {
+        console.error(err);
+        resultDiv.innerText = "エラーが発生しました。";
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const file = document.getElementById("fileInput").files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch("/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          status.textContent = "アップロード成功！";
+          
+          // 仮にサーバー側がファイル名を file_id として使う前提
+          const fileId = file.name;
+          fetchAnalysisResult(fileId);
+        } else {
+          status.textContent = "アップロード失敗。";
+        }
+      } catch (err) {
+        status.textContent = "エラー発生: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
+<!-- This HTML file provides a simple interface for uploading Excel files and displaying analysis results. -->
