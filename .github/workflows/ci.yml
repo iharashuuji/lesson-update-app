@@ -1,26 +1,26 @@
 # .github/workflows/ci.yml
-name: CI
+name: Run tests on commit
 
 on:
-  pull_request:
+  push:
     branches:
-      - master  # PRのマージ先
+      - develop  # ← このブランチにpushされたときにテストが走る（自由に変えてOK）
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: リポジトリをチェックアウト
+    - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Node.js セットアップ
+    - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
 
-    - name: 依存関係のインストール
+    - name: Install dependencies
       run: npm install
 
-    - name: テストの実行
+    - name: Run tests
       run: npm test
