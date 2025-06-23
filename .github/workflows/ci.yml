@@ -1,0 +1,22 @@
+# .github/workflows/ci.yml
+name: Run tests on commit
+
+on:
+  push:
+    branches:
+      - develop  # ← このブランチにpushされたときにテストが走る（自由に変えてOK）
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+
+
+
+
+    - name: Run tests
+      run: npm test
